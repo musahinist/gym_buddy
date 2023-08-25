@@ -19,6 +19,12 @@ class SearchPage extends StatelessWidget {
           pinned: true,
           toolbarHeight: 120,
           flexibleSpace: FlexibleSpaceBar(
+            collapseMode: CollapseMode.pin,
+            title: Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(left: 8.0),
+                height: 120,
+                child: const Text('Search Exercise')),
             background: Image.network(Asset.backgroundImage, fit: BoxFit.cover),
           ),
           bottom: const PreferredSize(
@@ -30,6 +36,25 @@ class SearchPage extends StatelessWidget {
           ),
         ),
         // add sliver list builder
+        BlocBuilder<ExerciseCubit, ExerciseState>(
+          builder: (context, state) {
+            return state.maybeMap(
+              orElse: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
+              loaded: (state) {
+                return SliverToBoxAdapter(
+                  child: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${state.exercises.length} item found',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
         BlocBuilder<ExerciseCubit, ExerciseState>(
           builder: (context, state) {
             return state.maybeMap(
@@ -134,6 +159,13 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
 
   List<String> filterList = ['type', 'muscle'];
   Set<String> selectedFilter = {};
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    combinedList = [...type, ...muscle];
+  }
+
   @override
   Widget build(BuildContext context) {
     return SearchAnchor(
